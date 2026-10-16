@@ -60,10 +60,18 @@ targets::tar_read(resumo)
 Resultado da execução de 2026-10-16:
 
 ```
-      acervo arquivos com_tamanho sem_tamanho   GB          medida vivos_200 mortos_4xx5xx
- presidencia    10130       10122           8 0.98 warc_comprimido     10130             0
-     resenha      140         140           0 0.72  content_length       140             0
+       acervo arquivos com_tamanho sem_tamanho   GB          medida vivos_200 mortos_4xx5xx
+     anuarios       52          52           0 4.74  content_length        52             0
+  presidencia    10130       10122           8 0.98 warc_comprimido     10130             0
+   relatorios      137         137           0 0.20 warc_comprimido       137             0
+      resenha      140         140           0 0.72  content_length       140             0
 ```
+
+Leia a coluna `medida` antes de somar os GB: `content_length` é o tamanho do
+arquivo servido pelo host; `warc_comprimido` é o tamanho do registro
+comprimido no índice do Wayback, que subestima o PDF original. Os 0,20 GB de
+`relatorios` não são o peso real do acervo — estimativas independentes
+apontam alguns GB —, são o que o CDX informa.
 
 A Fase 0 **não baixa arquivos**. Ela enumera e sonda. Em uma máquina comum leva
 poucos minutos e ocupa alguns MB.
