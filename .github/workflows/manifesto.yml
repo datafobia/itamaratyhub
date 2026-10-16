@@ -1,0 +1,50 @@
+name: manifesto
+
+# Reconstrói o manifesto semanalmente. Além de manter o registro atualizado,
+# o commit semanal evita que o GitHub desligue o cron por 60 dias de
+# inatividade no repositório — armadilha clássica de projeto de cadência.
+#
+# Horário "quebrado" de propósito: cron em hora cheia entra na fila de pico
+# do GitHub e sofre atraso ou descarte.
+
+on:
+  schedule:
+    - cron: "37 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-renv@v2
+
+      - name: Construir manifesto
+        run: Rscript -e 'targets::tar_make()'
+
+      - name: Resumo
+        run: |
+          Rscript -e 'print(targets::tar_read(resumo))'
+          Rscript -e 'm <- targets::tar_read(manifesto); cat("total de linhas:", nrow(m), "\n"); cat("URLs mortas:", sum(!is.na(m$status) & m$status >= 400), "\n")'
+
+      - name: Registrar mudanças
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifesto/
+          if git diff --staged --quiet; then
+            echo "manifesto inalterado"
+          else
+            git commit -m "manifesto: verificação automática de $(date -u +%Y-%m-%d)"
+            git push
+          fi

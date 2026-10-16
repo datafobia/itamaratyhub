@@ -1,0 +1,110 @@
+name: espelhar
+
+# Baixa um acervo e envia para a Release. NUNCA roda sozinho: só por disparo
+# manual, e só depois de a questão de licença estar resolvida (ver
+# PROVENANCE.md). Enquanto não estiver, mantenha a Release privada ou não
+# execute este workflow.
+#
+# O runner tem 14 GB de disco e nenhuma persistência entre jobs. Cada job
+# baixa um lote de até 4 GB, envia para a Release e morre. Nada disso toca
+# a máquina do pesquisador — que é o ponto, porque lá sobram 17 GB.
+
+on:
+  workflow_dispatch:
+    inputs:
+      acervo:
+        description: "Acervo a espelhar"
+        required: true
+        default: "resenha"
+        type: choice
+        options:
+          - resenha
+      release:
+        description: "Tag da Release de destino"
+        required: true
+        default: "v0.0.1-raw"
+      confirmar:
+        description: 'Digite "sim" para confirmar que a licença foi verificada'
+        required: true
+        default: "nao"
+
+permissions:
+  contents: write
+
+jobs:
+  planejar:
+    runs-on: ubuntu-latest
+    outputs:
+      lotes: ${{ steps.lotes.outputs.lista }}
+    steps:
+      - name: Travar execução sem confirmação
+        if: ${{ inputs.confirmar != 'sim' }}
+        run: |
+          echo "::error::Execução bloqueada. Veja PROVENANCE.md sobre a licença CC BY-ND da FUNAG."
+          exit 1
+
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-renv@v2
+
+      - id: lotes
+        name: Dividir o acervo em lotes de 4 GB
+        run: |
+          Rscript -e '
+            for (f in list.files("R", full.names = TRUE)) source(f)
+            m <- utils::read.csv("manifesto/manifesto.csv")
+            m <- m[m$acervo == Sys.getenv("ACERVO") & !is.na(m$status) & m$status == 200, ]
+            m <- lotear(m, gb_por_lote = 4)
+            cat("lista=", jsonlite::toJSON(sort(unique(m$lote))), "\n",
+                sep = "", file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
+          '
+        env:
+          ACERVO: ${{ inputs.acervo }}
+
+  baixar:
+    needs: planejar
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        lote: ${{ fromJSON(needs.planejar.outputs.lotes) }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-renv@v2
+
+      - name: Baixar lote ${{ matrix.lote }}
+        run: |
+          Rscript -e '
+            for (f in list.files("R", full.names = TRUE)) source(f)
+            m <- utils::read.csv("manifesto/manifesto.csv")
+            m <- m[m$acervo == Sys.getenv("ACERVO") & !is.na(m$status) & m$status == 200, ]
+            m <- lotear(m, gb_por_lote = 4)
+            m <- m[m$lote == as.integer(Sys.getenv("LOTE")), ]
+            reg <- baixar_lote(m, "saida")
+            utils::write.csv(reg, sprintf("integridade_lote_%s.csv", Sys.getenv("LOTE")),
+                             row.names = FALSE)
+            cat("falhas:", sum(!reg$ok), "de", nrow(reg), "\n")
+          '
+        env:
+          ACERVO: ${{ inputs.acervo }}
+          LOTE: ${{ matrix.lote }}
+
+      - name: Enviar para a Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "${{ inputs.release }}" >/dev/null 2>&1 \
+            || gh release create "${{ inputs.release }}" \
+                 --title "Espelho bruto" \
+                 --notes "Arquivos espelhados. Integridade em integridade_lote_*.csv."
+          gh release upload "${{ inputs.release }}" saida/* --clobber
+          gh release upload "${{ inputs.release }}" \
+            "integridade_lote_${{ matrix.lote }}.csv" --clobber

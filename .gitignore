@@ -1,0 +1,29 @@
+# Estado do pipeline — reconstruível por tar_make()
+_targets/
+
+# Biblioteca do renv — o que viaja é o renv.lock
+renv/library/
+renv/local/
+renv/staging/
+renv/python/
+renv/sandbox/
+
+# Bytes espelhados nunca entram no Git: vão para a Release.
+# Limite duro do GitHub é 100 MiB por arquivo; a Resenha sozinha tem 614 MB.
+saida/
+*.pdf
+*.parquet
+*.duckdb
+
+# Logs de execução — transitórios; o registro durável é o manifesto
+manifesto/log_execucao.txt
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# Sistema
+.DS_Store
+Thumbs.db
