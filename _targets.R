@@ -31,11 +31,30 @@ list(
   ),
 
   tar_target(
+    anuarios_lista,
+    marcar_duplicata_provavel(listar_apache(FONTES_APACHE$anuarios$url)),
+    cue = tar_cue(mode = "always")
+  ),
+
+  tar_target(
     presidencia_cdx,
     {
       f <- FONTES_CDX$presidencia_discursos
       bruto <- cdx_consultar(f$dominio, match_type = f$match_type)
       bruto[grepl(f$filtro_caminho, bruto$original, fixed = TRUE), , drop = FALSE]
+    }
+  ),
+
+  tar_target(
+    relatorios_cdx,
+    {
+      f <- FONTES_CDX$relatorios_mre
+      bruto <- cdx_consultar(f$dominio, match_type = f$match_type)
+      # O indice do Wayback contem URLs corrompidas por hifenizacao do HTML
+      # arquivado ("ima-ges/", "Re-latorios/"). Nao sao caminhos reais.
+      bruto <- bruto[!grepl("-(ges|latorios)/", bruto$original), , drop = FALSE]
+      bruto[grepl(f$filtro_caminho, bruto$original, fixed = TRUE) &
+              grepl("\\.pdf$", bruto$original, ignore.case = TRUE), , drop = FALSE]
     }
   ),
 
@@ -47,15 +66,26 @@ list(
   ),
 
   tar_target(
+    manifesto_anuarios,
+    manifesto_direto(anuarios_lista, "anuarios")
+  ),
+
+  tar_target(
     manifesto_presidencia,
     manifesto_wayback(presidencia_cdx, "presidencia")
+  ),
+
+  tar_target(
+    manifesto_relatorios,
+    manifesto_wayback(relatorios_cdx, "relatorios")
   ),
 
   tar_target(
     manifesto,
     {
       partes <- Filter(Negate(is.null),
-                       list(manifesto_resenha, manifesto_presidencia))
+                       list(manifesto_resenha, manifesto_anuarios,
+                            manifesto_presidencia, manifesto_relatorios))
       colunas <- Reduce(intersect, lapply(partes, names))
       do.call(rbind, lapply(partes, function(p) p[, colunas, drop = FALSE]))
     }

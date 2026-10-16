@@ -1,7 +1,13 @@
-# peb-mirror
+# itamaratyhub
 
 **Espelhamento defensivo de acervos públicos da política externa brasileira.**
 *Defensive mirror of Brazilian foreign policy public archives.*
+
+> **Estágio atual: Fase 0.** Este repositório ainda não é o "hub" de busca —
+> é a fundação dele. Hoje ele mantém o **manifesto** dos acervos e o **código
+> de coleta**. A camada de corpus, o pacote R e o site de busca vêm depois, e
+> provavelmente em repositórios próprios, para que melhorar um classificador
+> não obrigue a reemitir o acervo inteiro.
 
 ---
 
@@ -49,6 +55,14 @@ manifesto/manifesto.csv   o artefato
 renv::restore()
 targets::tar_make()
 targets::tar_read(resumo)
+```
+
+Resultado da execução de 2026-10-16:
+
+```
+      acervo arquivos com_tamanho sem_tamanho   GB          medida vivos_200 mortos_4xx5xx
+ presidencia    10130       10122           8 0.98 warc_comprimido     10130             0
+     resenha      140         140           0 0.72  content_length       140             0
 ```
 
 A Fase 0 **não baixa arquivos**. Ela enumera e sonda. Em uma máquina comum leva

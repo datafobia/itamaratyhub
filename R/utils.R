@@ -5,7 +5,8 @@
 # quem hospeda os acervos.
 
 PEB_UA <- paste0(
-  "peb-mirror/0.1 (espelhamento academico de acervos publicos; ",
+  "itamaratyhub/0.1 (+https://github.com/datafobia/itamaratyhub; ",
+  "espelhamento academico de acervos publicos; ",
   "UFPE; dalson.figueiredofo@ufpe.br)"
 )
 

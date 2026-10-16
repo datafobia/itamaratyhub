@@ -20,6 +20,15 @@ FONTES_APACHE <- list(
     url = "https://funag.gov.br/chdd/images/Resenhas/Novas/",
     verificado_em = "2026-10-16",
     esperado = 64
+  ),
+  anuarios = list(
+    acervo = "anuarios",
+    descricao = paste("Anuarios do Pessoal do MRE, 1916-2010.",
+                      "Curriculo funcional de cada diplomata; ja tem camada OCR.",
+                      "Base do projeto de prosopografia do corpo diplomatico."),
+    url = "https://funag.gov.br/chdd/images/Anuario_Funcionarios_MRE/",
+    verificado_em = "2026-10-16",
+    esperado = 52
   )
 )
 
@@ -34,6 +43,21 @@ FONTES_CDX <- list(
     verificado_em = "2026-10-16",
     # Medido com teto de 60.000 na consulta exploratoria; o total e maior.
     esperado_minimo = 10310
+  ),
+  relatorios_mre = list(
+    acervo = "relatorios",
+    descricao = paste("Relatorios do MRE, 1830-1960.",
+                      "Sem camada de texto: OCR do zero, com ortografia",
+                      "anterior a reforma de 1943. Fase 3, nao fase 0."),
+    # A listagem viva deste diretorio esta DESABILITADA: devolve 200 com 47
+    # bytes e nenhum link, ao contrario de /Resenhas/ e /Anuario_Funcionarios_MRE/.
+    # Os arquivos existem (ex.: Relatorio_1863A.PDF) e so sao enumeraveis
+    # pelo indice do Wayback.
+    dominio = "funag.gov.br/chdd/images/Relatorios",
+    match_type = "prefix",
+    filtro_caminho = "/Relatorios/",
+    verificado_em = "2026-10-16",
+    esperado_minimo = NA_integer_
   ),
   mre_notas = list(
     acervo = "mre_notas",
@@ -52,18 +76,20 @@ FONTES_CDX <- list(
 # sem URL: o relatorio de origem cita volumes, mas nao confirmei os caminhos.
 
 FONTES_PENDENTES <- data.frame(
-  acervo = c("anuarios_mre", "relatorios_mre", "funag_livros", "senado_msf"),
+  acervo = c("funag_livros", "senado_msf", "mre_discursos"),
   descricao = c(
-    "Anuarios/Almanaques do Pessoal do MRE, 1916-2010 (~52 PDFs, ~4,85 GB, com camada OCR)",
-    "Relatorios do MRE, 1830-1960 (~7,3 GB, sem camada de texto)",
     "Biblioteca Digital da FUNAG (~1.097 titulos, IDs sequenciais)",
-    "Sabatinas de embaixadores (MSF), Senado, 1988-hoje; endpoint em desativacao"
+    "Sabatinas de embaixadores (MSF), Senado, 1988-hoje; endpoint em desativacao",
+    "Discursos de chanceleres e do SG em gov.br/mre"
   ),
   bloqueio = c(
-    "indice atras de require_login; localizar host legado",
-    "idem; confirmar se ha camada de texto em algum volume",
     "confirmar faixa de IDs e padrao de URL",
-    "confirmar se /processo substitui /materia para MSF"
+    "confirmar se /processo substitui /materia para MSF",
+    "gov.br devolveu 'Conteudo Restrito' a acesso profundo; exige reconhecimento manual"
   ),
   stringsAsFactors = FALSE
 )
+
+# Resolvidos em 2026-10-16, saindo desta lista:
+#   anuarios   -> listagem Apache aberta, 52 PDFs confirmados
+#   relatorios -> listagem desabilitada, mas enumeravel pelo Wayback
