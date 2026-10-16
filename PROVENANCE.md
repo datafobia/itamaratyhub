@@ -14,6 +14,8 @@ Verificação de 2026-10-16, feita com requisições reais:
 |---|---|
 | `funag.gov.br/chdd/images/Resenhas/` | HTTP 200, **76 PDFs** na listagem Apache |
 | `funag.gov.br/chdd/images/Resenhas/Novas/` | HTTP 200, **64 PDFs** |
+| `funag.gov.br/chdd/images/Anuario_Funcionarios_MRE/` | HTTP 200, **52 PDFs** na listagem Apache — confirma a contagem estimada |
+| `funag.gov.br/chdd/images/Relatorios/` | HTTP 200, mas a listagem está **desabilitada**: 47 bytes, nenhum link. Os arquivos existem e só são enumeráveis pelo Wayback |
 | Wayback CDX, `biblioteca.presidencia.gov.br` | ativo; **mais de 60.000 URLs únicas**, das quais **ao menos 10.310** sob `/discursos/` |
 | Wayback CDX, `bibliotecas.presidencia.gov.br` | **zero capturas** |
 
@@ -23,24 +25,33 @@ Execução de 2026-10-16, `targets::tar_make()`:
 
 | Acervo | Arquivos | Vivos (200) | Mortos (4xx/5xx) | Tamanho | Medida |
 |---|---|---|---|---|---|
-| `resenha` | 140 | 140 | 0 | **0,72 GB** | `Content-Length` |
+| `anuarios` | 52 | 52 | 0 | **4,74 GB** | `Content-Length` |
 | `presidencia` | 10.130 | 10.130 | 0 | 0,98 GB | registro WARC comprimido |
+| `relatorios` | 137 | 137 | 0 | 0,20 GB | registro WARC comprimido |
+| `resenha` | 140 | 140 | 0 | **0,72 GB** | `Content-Length` |
+
+Total: 10.459 arquivos, nenhum morto.
 
 Observações que mudam o planejamento:
 
 - **A Resenha tem 140 arquivos, dos quais 16 são duplicatas `(1)`** — logo, cerca
   de 124 edições únicas, o que reconcilia com a contagem de edições registrada
   na literatura. A confirmação definitiva exige comparar SHA-256 após o download.
-- **Os dois acervos verificados somam ~1,7 GB, não 13 GB.** A estimativa de 13 GB
-  depende inteiramente dos Anuários (~4,85 GB) e dos Relatórios (~7,3 GB), que
-  continuam **não verificados** e sem URL confirmada. Até que sejam, o espelho
-  cabe folgado em qualquer máquina.
+- **Os Anuários confirmaram a estimativa: 4,74 GB medidos contra 4,85 GB
+  estimados, e exatamente os 52 PDFs esperados.** É o único acervo grande em
+  que estimativa e medição convergiram.
+- **Os 0,20 GB de `relatorios` não são o peso do acervo.** Vêm do CDX, que
+  informa o registro WARC comprimido. A estimativa independente aponta ~7,3 GB.
+  Enquanto o download não acontecer, o peso real desse acervo é desconhecido —
+  e é a maior incerteza de dimensionamento que resta.
+- **Dos ~13 GB estimados, 6,4 GB estão medidos.** O que falta é quase todo
+  `relatorios`, mais a Biblioteca Digital da FUNAG, que segue sem URL.
 - Para `presidencia`, 8 de 10.130 registros vinham com `length` impossível
   (até −10.485.042.932) e agora entram como `NA`. Ver `sanear_length()`.
-- Nenhuma URL morta nos dois acervos nesta execução. O valor do manifesto
-  semanal é justamente detectar quando isso mudar.
+- Nenhuma URL morta em nenhum dos quatro acervos nesta execução. O valor do
+  manifesto semanal é justamente detectar quando isso mudar.
 
-### Duas correções a relatórios anteriores
+### Três correções a relatórios anteriores
 
 1. **O host da Biblioteca da Presidência é `biblioteca`, no singular.** A grafia
    no plural, que constava do levantamento inicial, não tem nenhuma captura no
@@ -52,16 +63,32 @@ Observações que mudam o planejamento:
    mas ilustra a razão de enumerar a listagem em vez de confiar em contagem
    registrada: o acervo muda.
 
+3. **A listagem de `/Relatorios/` está desabilitada, mas o acervo não está
+   perdido.** O diretório devolve 200 com 47 bytes e nenhum link, ao contrário
+   de `/Resenhas/` e `/Anuario_Funcionarios_MRE/`. O índice do Wayback o
+   enumera — com a ressalva de que contém URLs corrompidas por hifenização do
+   HTML arquivado (`ima-ges/`, `Re-latorios/`), que são filtradas por não
+   corresponderem a caminho real.
+
 ## Fontes ainda não verificadas
 
 Listadas em `R/fontes.R`, em `FONTES_PENDENTES`, **sem URL**. Elas aparecem em
 levantamentos com volumes estimados, mas os caminhos não foram confirmados.
 Nenhuma URL foi inventada para preencher a lacuna.
 
-- Anuários/Almanaques do Pessoal do MRE, 1916–2010
-- Relatórios do MRE, 1830–1960
-- Biblioteca Digital da FUNAG
+- Biblioteca Digital da FUNAG (~1.097 títulos, IDs sequenciais)
 - Sabatinas de embaixadores (MSF) no Senado
+- Discursos de chanceleres e do SG em `gov.br/mre` — acesso profundo devolveu
+  "Conteúdo Restrito"
+
+Saíram desta lista em 2026-10-16, por verificação ao vivo: os **Anuários**
+(listagem Apache aberta) e os **Relatórios** (listagem desabilitada, mas
+enumeráveis pelo Wayback). Ambos estão no manifesto.
+
+Declarada em `FONTES_CDX` mas **ainda sem target no pipeline**: as **notas à
+imprensa do MRE**. A fonte está registrada com `verificado_em = NA` justamente
+porque a enumeração não foi conferida — ela não entra no manifesto enquanto
+não for.
 
 ## Situação jurídica — não resolvida
 
