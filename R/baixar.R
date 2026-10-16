@@ -45,6 +45,9 @@ baixar_url <- function(url, destino) {
 #' No Windows, caminhos com acento combinados com `targets` já causaram
 #' problema. O nome original fica preservado no manifesto como metadado.
 nome_seguro <- function(x) {
+  # A URL traz percent-encoding ("%C3%B3", "%20"); sem decodificar antes,
+  # "Relatorio 1961.pdf" vira "Relat_C3_B3rio_201961.pdf" e o ano fica ilegivel.
+  x <- vapply(x, utils::URLdecode, character(1), USE.NAMES = FALSE)
   y <- iconv(x, from = "UTF-8", to = "ASCII//TRANSLIT", sub = "")
   y <- gsub("[^A-Za-z0-9._-]+", "_", y)
   y <- gsub("_+", "_", y)

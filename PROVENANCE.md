@@ -70,6 +70,39 @@ Observações que mudam o planejamento:
    HTML arquivado (`ima-ges/`, `Re-latorios/`), que são filtradas por não
    corresponderem a caminho real.
 
+## Primeiro download — `relatorios`, 2026-10-16
+
+O primeiro acervo efetivamente baixado. Registro completo, com SHA-256 por
+arquivo, em `manifesto/integridade_relatorios.csv`.
+
+| | |
+|---|---|
+| arquivos | 137 de 137, nenhuma falha |
+| tamanho real | **7,11 GB** |
+| hashes distintos | 137 — **nenhuma duplicata** |
+| maior / menor | 149,4 MB (`Relatorio_1914-1915.pdf`) / 2,5 MB |
+| origem dos bytes | `funag.gov.br`, não o Wayback |
+| integridade | SHA-256 recalculado sobre os 7,2 GB em disco: **137 de 137 conferem** |
+
+Três coisas que este download corrigiu:
+
+1. **O acervo vai de 1830 a 1988, não a 1960.** A faixa registrada até aqui
+   subestimava em 28 anos. Medida sobre os nomes de arquivo, que trazem o ano
+   em todos os 137 casos. Distribuição por década razoavelmente uniforme no
+   século XIX (~10 por década) e magra nos anos 1900 (3 arquivos).
+2. **Os arquivos nunca saíram do ar.** Os 137 respondem 200 na FUNAG, com
+   `Content-Length`. O que está quebrado é só a listagem do diretório. O
+   Wayback foi necessário para descobrir os nomes, não para recuperar os
+   bytes — e isso enfraquece, para este acervo, o argumento de resgate
+   defensivo: não é fonte em risco iminente, é fonte com índice quebrado.
+3. **O manifesto subestimava o tamanho por um fator de 35** (0,20 GB de WARC
+   comprimido contra 7,11 GB reais). Confirma, com medição, a ressalva que já
+   estava registrada sobre a coluna `bytes_medida`.
+
+Os bytes **não** estão neste repositório: `saida/` está no `.gitignore`. O que
+é publicado aqui é o registro de integridade — que basta para qualquer pessoa
+reconstruir e conferir o acervo a partir da origem.
+
 ## Fontes ainda não verificadas
 
 Listadas em `R/fontes.R`, em `FONTES_PENDENTES`, **sem URL**. Elas aparecem em

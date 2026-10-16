@@ -46,7 +46,10 @@ FONTES_CDX <- list(
   ),
   relatorios_mre = list(
     acervo = "relatorios",
-    descricao = paste("Relatorios do MRE, 1830-1960.",
+    descricao = paste("Relatorios do MRE, 1830-1988.",
+                      "Faixa MEDIDA no download de 2026-10-16: 137 arquivos,",
+                      "7,11 GB, nenhuma duplicata. A faixa 1830-1960 que constava",
+                      "aqui subestimava o acervo em 28 anos.",
                       "Sem camada de texto: OCR do zero, com ortografia",
                       "anterior a reforma de 1943. Fase 3, nao fase 0."),
     # A listagem viva deste diretorio esta DESABILITADA: devolve 200 com 47
