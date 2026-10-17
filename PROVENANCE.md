@@ -34,9 +34,11 @@ Total: 10.459 arquivos, nenhum morto.
 
 Observações que mudam o planejamento:
 
-- **A Resenha tem 140 arquivos, dos quais 16 são duplicatas `(1)`** — logo, cerca
-  de 124 edições únicas, o que reconcilia com a contagem de edições registrada
-  na literatura. A confirmação definitiva exige comparar SHA-256 após o download.
+- **A Resenha tem 140 arquivos e 124 edições únicas — confirmado por hash.**
+  Os 16 arquivos com sufixo `(1)` são cópias **byte a byte idênticas** do
+  arquivo sem sufixo: 16 de 16, nenhum falso positivo, nenhum par divergente.
+  A heuristica `marcar_duplicata_provavel()` acertou todos. Medido no download
+  de 2026-10-16; registro em `manifesto/integridade_resenha.csv`.
 - **Os Anuários confirmaram a estimativa: 4,74 GB medidos contra 4,85 GB
   estimados, e exatamente os 52 PDFs esperados.** É o único acervo grande em
   que estimativa e medição convergiram.
@@ -102,6 +104,35 @@ Três coisas que este download corrigiu:
 Os bytes **não** estão neste repositório: `saida/` está no `.gitignore`. O que
 é publicado aqui é o registro de integridade — que basta para qualquer pessoa
 reconstruir e conferir o acervo a partir da origem.
+
+## Downloads de `resenha` e `anuarios`, 2026-10-16
+
+| | `resenha` | `anuarios` |
+|---|---|---|
+| arquivos | 140 | 52 |
+| tamanho | 0,72 GB | 4,74 GB |
+| hashes distintos | **124** (16 duplicatas idênticas) | **52** (nenhuma duplicata) |
+| faixa | 1974–2019 | 1916–2010 |
+| falhas na coleta | 0 | 0 |
+| SHA-256 conferidos na Release | 140 de 140 | 52 de 52 |
+
+Registros em `manifesto/integridade_resenha.csv` e
+`manifesto/integridade_anuarios.csv`.
+
+### Sobre a licença — correção de leitura
+
+Este documento tratava a CC BY-ND 3.0 da FUNAG como impedimento ao
+espelhamento. **Era leitura equivocada.** A cláusula *NoDerivatives* veda
+distribuir material **modificado**; copiar e redistribuir a obra íntegra, com
+atribuição, é expressamente permitido pela licença.
+
+Logo, as Releases de `resenha` e `anuarios` cumprem o BY-ND: redistribuem os
+arquivos sem qualquer alteração, com atribuição à FUNAG/MRE, e publicam os
+SHA-256 ao lado como prova verificável de integridade.
+
+O que o ND **de fato** restringe é a fase seguinte: OCR, corpus, texto
+derivado. Essa questão continua em aberto e é a que exige resposta da FUNAG ou
+parecer jurídico — não o espelhamento.
 
 ## Fontes ainda não verificadas
 
